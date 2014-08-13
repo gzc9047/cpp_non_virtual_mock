@@ -1,3 +1,6 @@
+#ifndef MOCK_NON_VIRTUAL_H
+#define MOCK_NON_VIRTUAL_H
+
 #include "set_function_jump.h"
 
 #include "gmock/gmock.h"
@@ -30,18 +33,23 @@
         } \
     }
 
+#define DECLARE_STATIC_MEMBER_FUNCTION_MOCK0(keyName, returnValue) DECLARE_FUNCTION_MOCK0(keyName, returnValue)
+
 #define INIT_FUNCTION(method, keyName) \
     USE_FUNCTION_OBJECT(keyName) = new Fake_##keyName(); \
-    SetFunctionJump(&method, &USE_FUNCTION_WRAP(keyName), USE_FUNCTION_OBJECT(keyName)->binary_backup)
+    SetFunctionJump(method, &USE_FUNCTION_WRAP(keyName), USE_FUNCTION_OBJECT(keyName)->binary_backup)
 
 #define INIT_MEMBER_FUNCTION(method, keyName) \
     USE_FUNCTION_OBJECT(keyName) = new Fake_##keyName(); \
-    SetFunctionJump(&method, &Fake_memder_##keyName::USE_FUNCTION_WRAP(keyName), USE_FUNCTION_OBJECT(keyName)->binary_backup)
+    SetFunctionJump(method, &Fake_memder_##keyName::USE_FUNCTION_WRAP(keyName), USE_FUNCTION_OBJECT(keyName)->binary_backup)
+
+#define INIT_STATIC_MEMBER_FUNCTION(method, keyName) INIT_FUNCTION(method, keyName)
 
 #define RESTORE_FUNCTION(method, keyName) \
-    RestoreJump(&method, USE_FUNCTION_OBJECT(keyName)->binary_backup)
+    RestoreJump(method, USE_FUNCTION_OBJECT(keyName)->binary_backup)
 
 #define FINALIZE_FUNCTION(method, keyName) \
     RESTORE_FUNCTION(method, keyName); \
     delete USE_FUNCTION_OBJECT(keyName)
 
+#endif // MOCK_NON_VIRTUAL_H
