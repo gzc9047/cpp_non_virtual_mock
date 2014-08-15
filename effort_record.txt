@@ -1,0 +1,7 @@
+This doc used to record how many time I spent on this project.
+Precision: Hour
+2014-08-10 4
+2014-08-11 3
+2014-08-12 2
+2014-08-13 3
+2014-08-14 3

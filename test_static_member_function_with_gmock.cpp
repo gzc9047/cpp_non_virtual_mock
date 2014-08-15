@@ -18,7 +18,8 @@ DECLARE_STATIC_MEMBER_FUNCTION_MOCK0(global_getString, string);
 class TryGmockStaticMemberTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
-        INIT_STATIC_MEMBER_FUNCTION(Simple::getString, global_getString);
+        Simple s;
+        INIT_STATIC_MEMBER_FUNCTION(decltype(s)::getString, global_getString);
     }
 
     virtual void TearDown() {

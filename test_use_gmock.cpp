@@ -22,6 +22,7 @@ protected:
     virtual void TearDown() {
         FINALIZE_FUNCTION(getString, global_getString);
     }
+    MOCK_METHOD5(testMock5, int(bool, char, short, int, string));
 };
 
 TEST_F(TryGmockTest, SimpleCase) {
