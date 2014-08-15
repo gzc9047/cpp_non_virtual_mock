@@ -15,8 +15,11 @@ test_template_function_with_gmock: test_template_function_with_gmock.cpp
 	g++ $(CPP11_FLAGS) $^ $(GMOCK_INCLUDE) $(GMOCK_LIB) -o $(TMPDIR)/$@
 test_variable_template: test_variable_template.cpp
 	g++ $(CPP11_FLAGS) $^ $(GMOCK_INCLUDE) $(GMOCK_LIB) -o $(TMPDIR)/$@
+test_more_case: test_more_case.cpp
+	g++ $(CPP11_FLAGS) $^ $(GMOCK_INCLUDE) $(GMOCK_LIB) -o $(TMPDIR)/$@
 # Default
 all: \
+        test_more_case \
         test_variable_template \
         test_template_function_with_gmock \
         test_function_pointer_with_gmock \
@@ -29,4 +32,5 @@ test: all
         && $(TMPDIR)/test_static_member_function_with_gmock \
         && $(TMPDIR)/test_function_pointer_with_gmock \
         && $(TMPDIR)/test_template_function_with_gmock \
-        && $(TMPDIR)/test_variable_template
+        && $(TMPDIR)/test_variable_template \
+        && $(TMPDIR)/test_more_case
