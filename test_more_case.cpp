@@ -14,17 +14,43 @@ struct TestReferenceMatcher {
     MOCK_METHOD2(MatchNonReference, string(const string, string));
 };
 
-class TryMoreCase : public Test {
-protected:
+struct TryMoreCase : public Test {
+    TryMoreCase(): stringConstValue("HELLO") {
+    }
     virtual void SetUp() {
+        boolValue = false;
+        charValue = '0';
+        intValue = 9047;
+        stringValue = "LOUIX";
     }
 
     virtual void TearDown() { }
+    bool boolValue;
+    char charValue;
+    int intValue;
+    string stringValue;
+    const string stringConstValue;
 };
 
 int testReference(bool& boolValue, char& charValue, int& intValue, string& stringValue, const string& stringConstValue) {
     return 0;
 }
+
+struct TestReference {
+    int testReference(bool& boolValue, char& charValue, int& intValue, string& stringValue, const string& stringConstValue) {
+        return 0;
+    }
+    int paddingInt;
+    char paddingChar;
+    bool paddingBool;
+    string paddingString;
+};
+
+struct TestSubReference : TestReference {
+    int testSubReference(bool& boolValue, char& charValue, int& intValue, string& stringValue, const string& stringConstValue) const {
+        return 0;
+    }
+};
 
 int testReferenceStubP1P2(bool& boolValue, char& charValue) {
     boolValue = !boolValue;
@@ -52,11 +78,6 @@ TEST_F(TryMoreCase, TestReferenceMatcher) {
 }
 
 TEST_F(TryMoreCase, TestReference) {
-    bool boolValue = false;
-    char charValue = '0';
-    int intValue = 9047;
-    string stringValue = "LOUIX";
-    const string stringConstValue = "HELLO";
     CreateMocker(mocker, testReference);
     EXPECT_CALL(*mocker, MockFunction(boolValue, charValue, intValue, stringValue, _))
         .Times(AtLeast(1))
@@ -72,3 +93,102 @@ TEST_F(TryMoreCase, TestReference) {
     EXPECT_STREQ("", stringValue.c_str());
 }
 
+TEST_F(TryMoreCase, TestReference2) {
+    TestReference testObject;
+    cout << "CaseThisPoint: " << &testObject << endl;
+    CreateMocker(mocker, &TestReference::testReference);
+    EXPECT_CALL(*mocker, MockFunction(boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(WithArgs<0, 1>(Invoke(testReferenceStubP1P2)));
+    EXPECT_EQ(12, testObject.testReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+    EXPECT_TRUE(boolValue);
+    EXPECT_EQ('1', charValue);
+    EXPECT_CALL(*mocker, MockFunction(boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(WithArgs<2, 3, 4>(Invoke(testReferenceStubP3P4P5)));
+    EXPECT_EQ(345, testObject.testReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+    EXPECT_EQ(9046, intValue);
+    EXPECT_STREQ("", stringValue.c_str());
+}
+
+TEST_F(TryMoreCase, TestSubReference) {
+    TestSubReference testObject;
+    cout << "CaseThisPoint: " << &testObject << endl;
+    CreateMocker(mocker, &TestSubReference::testReference);
+    EXPECT_CALL(*mocker, MockFunction(boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(WithArgs<0, 1>(Invoke(testReferenceStubP1P2)));
+    EXPECT_EQ(12, testObject.testReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+    EXPECT_TRUE(boolValue);
+    EXPECT_EQ('1', charValue);
+    EXPECT_CALL(*mocker, MockFunction(boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(WithArgs<2, 3, 4>(Invoke(testReferenceStubP3P4P5)));
+    EXPECT_EQ(345, testObject.testReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+    EXPECT_EQ(9046, intValue);
+    EXPECT_STREQ("", stringValue.c_str());
+}
+
+TEST_F(TryMoreCase, TestConstReference) {
+    TestSubReference testObject;
+    cout << "CaseThisPoint: " << &testObject << endl;
+    CreateMocker(mocker, &TestSubReference::testSubReference);
+    EXPECT_CALL(*mocker, MockFunction(boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(WithArgs<0, 1>(Invoke(testReferenceStubP1P2)));
+    EXPECT_EQ(12, testObject.testSubReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+    EXPECT_TRUE(boolValue);
+    EXPECT_EQ('1', charValue);
+    EXPECT_CALL(*mocker, MockFunction(boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(WithArgs<2, 3, 4>(Invoke(testReferenceStubP3P4P5)));
+    EXPECT_EQ(345, testObject.testSubReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+    EXPECT_EQ(9046, intValue);
+    EXPECT_STREQ("", stringValue.c_str());
+}
+
+TEST_F(TryMoreCase, TestThisCheck) {
+    TestSubReference testObject;
+    TestSubReference testObject2;
+    cout << "CaseThisPoint: " << &testObject << endl;
+    CreateMockerWithThisCheck(mocker, &TestSubReference::testReference);
+    EXPECT_CALL(*mocker, MockFunction(&testObject, boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(WithArgs<1, 2>(Invoke(testReferenceStubP1P2)));
+    EXPECT_EQ(12, testObject.testReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+    EXPECT_TRUE(boolValue);
+    EXPECT_EQ('1', charValue);
+    EXPECT_CALL(*mocker, MockFunction(&testObject, boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(WithArgs<3, 4, 5>(Invoke(testReferenceStubP3P4P5)));
+    EXPECT_EQ(345, testObject.testReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+    EXPECT_EQ(9046, intValue);
+    EXPECT_STREQ("", stringValue.c_str());
+    EXPECT_CALL(*mocker, MockFunction(_, boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(Return(9));
+    EXPECT_EQ(9, testObject2.testReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+}
+
+TEST_F(TryMoreCase, TestConstThisCheck) {
+    TestSubReference testObject;
+    TestSubReference testObject2;
+    cout << "CaseThisPoint: " << &testObject << endl;
+    CreateMockerWithThisCheck(mocker, &TestSubReference::testSubReference);
+    EXPECT_CALL(*mocker, MockFunction(&testObject, boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(WithArgs<1, 2>(Invoke(testReferenceStubP1P2)));
+    EXPECT_EQ(12, testObject.testSubReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+    EXPECT_TRUE(boolValue);
+    EXPECT_EQ('1', charValue);
+    EXPECT_CALL(*mocker, MockFunction(&testObject, boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(WithArgs<3, 4, 5>(Invoke(testReferenceStubP3P4P5)));
+    EXPECT_EQ(345, testObject.testSubReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+    EXPECT_EQ(9046, intValue);
+    EXPECT_STREQ("", stringValue.c_str());
+    EXPECT_CALL(*mocker, MockFunction(_, boolValue, charValue, intValue, stringValue, _))
+        .Times(AtLeast(1))
+        .WillOnce(Return(9));
+    EXPECT_EQ(9, testObject2.testSubReference(boolValue, charValue, intValue, stringValue, stringConstValue));
+}
