@@ -6,7 +6,9 @@
 
 #include "gmock/gmock.h"
 
+#include <iostream>
 #include <memory>
+#include <vector>
 
 template < typename T >
 struct MockTemplateBase {
@@ -52,7 +54,7 @@ struct MockEntryPoint<I(R(P ...))> {
 
 template < typename I, typename F > MockTemplate<I(F)>* MockerStore<I(F)>::pMocker = nullptr;
 
-template < typename R, typename ... P>
+template < typename R, typename ... P >
 struct MockTemplateBase<R(P ...)> {
     typedef R FunctionType(P ...);
 
@@ -61,9 +63,11 @@ struct MockTemplateBase<R(P ...)> {
         return gmocker.Invoke(p ...);
     }
 
-    ::testing::MockSpec<R(P...)>& gmock_MockFunction(P... p) {
+    template < typename ... M >
+    ::testing::MockSpec<R(P...)>& gmock_MockFunction(M... m) {
+        // TODO(guzuchao): need type check M... is Matcher< for every p>
         gmocker.RegisterOwner(this);
-        return gmocker.With(p ...);
+        return gmocker.With(m ...);
     }
 
     mutable ::testing::FunctionMocker<R(P...)> gmocker;
@@ -160,6 +164,7 @@ struct MockerCreator {
 
 #define CreateMockerWithIdentity(mocker, function, identity) \
     struct identity {}; \
+    std::cout << "MockIdentity name: " << typeid(identity).name() << std::endl; \
     auto mocker = MockerCreator<identity>::createMockerWithIdentity(function)
 
 #define CreateMockerWithInternal2(mocker, function, identity) \

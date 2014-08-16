@@ -1,7 +1,7 @@
 TMPDIR=/Volumes/RaidRamDisk/
 GMOCK_LIB=$(GMOCK_PATH)/lib/.libs/libgmock.a $(GMOCK_PATH)/lib/.libs/libgmock_main.a $(GMOCK_PATH)/gtest/lib/.libs/libgtest.a
 GMOCK_INCLUDE=-I$(GMOCK_PATH)/include -I$(GMOCK_PATH)/gtest/include
-CPP11_FLAGS=-g -O0 -std=c++11
+CPP11_FLAGS=-g -O0 -std=c++11 -fno-inline -falign-functions=32
 # Test
 test_use_gmock: test_use_gmock.cpp
 	g++ $(CPP11_FLAGS) $^ $(GMOCK_INCLUDE) $(GMOCK_LIB) -o $(TMPDIR)/$@
