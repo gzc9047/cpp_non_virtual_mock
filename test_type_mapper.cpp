@@ -32,7 +32,7 @@ struct TestType
 
     template < typename T1, typename ... Args >
     static void func2() {
-        cout << "is_same: " << is_same<T1, vector<int>>::value << endl;
+        cout << __PRETTY_FUNCTION__ << endl;
     }
 };
 
