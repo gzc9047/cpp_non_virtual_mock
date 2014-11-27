@@ -2,6 +2,7 @@
 #define SET_JUMP_H
 
 #include <cstddef>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 

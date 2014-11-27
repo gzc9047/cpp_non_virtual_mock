@@ -250,12 +250,14 @@ struct MockerCreator {
     static std::unique_ptr<MockTemplate<I(R(C::*)(P ...))>>
             createMockerWithIdentity(R (C::*function)(P ...)) {
         typedef I IntegrateType(R(C::*)(P ...));
+        std::cout << "Meet member function here" << std::endl;
         return std::unique_ptr<MockTemplate<IntegrateType>>(new MockTemplate<IntegrateType>(function));
     }
 
     template < typename R, typename ... P >
     static std::unique_ptr<MockTemplate<I(R(P ...))>>
             createMockerWithIdentity(R function(P ...)) {
+        std::cout << "Meet normal function here" << std::endl;
         return std::unique_ptr<MockTemplate<I(R(P ...))>>(new MockTemplate<I(R(P ...))>(function));
     }
 
@@ -286,9 +288,9 @@ struct MockerCreator {
     CreateMockerWithInternal2(mocker, function, identity, creator)
 
 #define CreateMocker(mocker, function) \
-    CreateMockerWithInternal(mocker, function, __LINE__, createMockerWithIdentity)
+    CreateMockerWithInternal(mocker, function, __COUNTER__, createMockerWithIdentity)
 
 #define CreateMockerWithThisCheck(mocker, function) \
-    CreateMockerWithInternal(mocker, function, __LINE__, createMockerWithIdentityWithThisCheck)
+    CreateMockerWithInternal(mocker, function, __COUNTER__, createMockerWithIdentityWithThisCheck)
 
 #endif // MOCK_NON_VIRTUAL_P1_H
