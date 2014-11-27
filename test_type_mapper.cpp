@@ -23,6 +23,19 @@ protected:
     virtual void TearDown() { }
 };
 
+struct TestType
+{
+    template < typename ... Args >
+    static void func() {
+        func2<vector<Args>...>();
+    }
+
+    template < typename T1, typename ... Args >
+    static void func2() {
+        cout << "is_same: " << is_same<T1, vector<int>>::value << endl;
+    }
+};
+
 TEST_F(TryTypeMapper, Basic) {
     TypeMapper<TypeContainer, TypeContainer<int>>::Result typeA;
     TypePackage<TypeContainer<int>>::Type typeB;
@@ -46,5 +59,10 @@ TEST_F(TryTypeMapper, GmockMatcherMapper) {
     cout << "typeid(typeA): " << typeid(decltype(typeA)).name() << endl;
     cout << "typeid(typeB): " << typeid(decltype(typeB)).name() << endl;
     cout << "is_same: " << is_same<decltype(typeA), decltype(typeB)>::value << endl;
+}
+
+TEST_F(TryTypeMapper, Cpp11VariadicTemplate) {
+    TestType::func<int>();
+    TestType::func<bool, char>();
 }
 
